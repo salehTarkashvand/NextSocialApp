@@ -1,45 +1,41 @@
-import { storePost } from "@/lib/posts";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { storePost } from "@/lib/posts";
+
+import PostForm from "@/components/post-form";
 
 export default function NewPostPage() {
-  async function formAction(formData) {
-    "use server";
-    const post = {
-      title: formData.get("title"),
-      image: formData.get("image"),
-      content: formData.get("content"),
-    };
+  
+  async function createPost(prevState, formData) {
+    "use server"
+    const title = formData.get("title");
+    const image = formData.get("image");
+    const content = formData.get("content");
 
-    console.log(post);
-    
+    let errors = [];
+
+    if (!title || title.trim().lenght === 0) {
+      errors.push("Title is required");
+    }
+    if (!content || content.trim().lenght === 0) {
+      errors.push("content is required");
+    }
+    if (!image) {
+      errors.push("image is required");
+    }
+    if (errors.length > 0) {
+      return { errors };
+    }
+
+    await storePost({
+      imageUrl: "",
+      title,
+      content,
+      userId: 1,
+    });
+
+    redirect("/feed"), revalidatePath("/feed");
   }
-  return (
-    <>
-      <h1>Create a new post</h1>
-      <form action={formAction}>
-        <p className="form-control">
-          <label htmlFor="title">Title</label>
-          <input type="text" id="title" name="title" />
-        </p>
-        <p className="form-control">
-          <label htmlFor="image">Image URL</label>
-          <input
-            type="file"
-            accept="image/png, image/jpeg"
-            id="image"
-            name="image"
-          />
-        </p>
-        <p className="form-control">
-          <label htmlFor="content">Content</label>
-          <textarea id="content" name="content" rows="5" />
-        </p>
-        <p className="form-actions">
-          <button type="reset">Reset</button>
-          <button>Create Post</button>
-        </p>
-      </form>
-    </>
-  );
+
+  return <PostForm action={createPost} />;
 }
