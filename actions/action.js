@@ -47,4 +47,5 @@ export async function createPost(prevState, formData) {
 
 export async function togglePostLikeStatus(postId){
   updatePostLikeStatus(postId , 2)
+  revalidatePath("/feed")
 }
