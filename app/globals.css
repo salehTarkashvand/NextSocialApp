@@ -165,6 +165,8 @@ main {
 
 .post img { 
   object-fit: cover;
+  width: 15rem;
+  height: 13rem;
 }
 
 .post-content {
